@@ -1,4 +1,4 @@
-#include <neural_nets/hebbianneuralnetwork.hpp>
+#include <neural_nets/hebbian_neural_network.hpp>
 
 HebbianNeuralNetwork::HebbianNeuralNetwork()
 {
