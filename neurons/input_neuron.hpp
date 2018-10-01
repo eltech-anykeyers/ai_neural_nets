@@ -9,10 +9,11 @@ public:
     InputNeuron( double value );
 
     void set( double value );
-    virtual double getResult() override;
-    virtual double getTarget() override;
+    virtual double result() override;
 
 private:
+    virtual double target() override;
+
     double value;
 };
 

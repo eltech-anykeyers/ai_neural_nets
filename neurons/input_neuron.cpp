@@ -10,12 +10,13 @@ void InputNeuron::set( double value )
     this->value = value;
 }
 
-double InputNeuron::getResult()
+double InputNeuron::result()
 {
     return value;
 }
 
-double InputNeuron::getTarget()
+double InputNeuron::target()
 {
+    /// Input neuron nas no target.
     return 0.0;
 }

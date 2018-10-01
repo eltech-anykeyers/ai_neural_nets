@@ -10,14 +10,16 @@ class Neuron : public AbstractNeuron
 {
 public:
     Neuron( const std::vector< AbstractNeuron* >& inputs,
-            const std::function< double(double) >& func );
+            AbstractNeuron* target, const std::function< double(double) >& func );
 
-    virtual double getResult() override;
-    virtual double getTarget() override;
+    virtual double result() override;
+    virtual double target() override;
+
+    void learn();
 
 private:
     std::vector< std::pair< AbstractNeuron*, double > > inputs;
-    std::vector< std::pair< AbstractNeuron*, double > > outputs;
+    AbstractNeuron* targetNeuron;
     std::function< double(double) > activation_func;
 };
 
