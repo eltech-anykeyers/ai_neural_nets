@@ -54,8 +54,38 @@ void HebbianNeuralNetwork::addLearningDataSet(
     double* targetArray = new double[ this->nNeurons ];
     std::copy( target.begin(), target.end(), targetArray );
 
+    /// Check if duplicate.
+    bool duplicate = false;
+    for( const auto& set : data )
+    {
+        /// Check if input is duplicate.
+        duplicate = true;
+        for( size_t i = 0; i < this->inputSize; i++ )
+        {
+            duplicate =
+                duplicate &&
+                fabs( set.first[ i ] - inputArray[ i ] ) < 1e-7;
+            if( !duplicate ) break;
+        }
+        if( duplicate ) break;
+
+        /// Check if target is duplicate.
+        duplicate = true;
+        for( size_t i = 0; i < this->nNeurons; i++ )
+        {
+            duplicate =
+                duplicate &&
+                fabs( set.second[ i ] - targetArray[ i ] ) < 1e-7;
+            if( !duplicate ) break;
+        }
+        if( duplicate ) break;
+    }
+
     /// Add to learning data.
-    data.push_back( std::make_pair( inputArray, targetArray ) );
+    if( !duplicate )
+    {
+        data.push_back( std::make_pair( inputArray, targetArray ) );
+    }
 }
 
 void HebbianNeuralNetwork::learn()
