@@ -16,6 +16,7 @@ public:
     void learn();
     std::vector< double > test(
         const std::vector< double >& dataSet );
+    void clear();
 
 protected:
     double compute( size_t neuronIndex, double* input );

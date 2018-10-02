@@ -139,6 +139,18 @@ std::vector< double > HebbianNeuralNetwork::test(
     return result;
 }
 
+void HebbianNeuralNetwork::clear()
+{
+    data.clear();
+    for( size_t i = 0; i < this->nNeurons; i++ )
+    {
+        for( size_t j = 0; j < this->inputSize; j++ )
+        {
+            connections[ i ][ j ] = 0.0;
+        }
+    }
+}
+
 double HebbianNeuralNetwork::compute( size_t neuronIndex, double* input )
 {
     double result = 0.0;
