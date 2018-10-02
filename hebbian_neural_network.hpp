@@ -2,38 +2,32 @@
 #define HEBBIANNEURALNETWORK_HPP
 
 #include <vector>
-
-#include "neurons/input_neuron.hpp"
-#include "neurons/target_neuron.hpp"
-#include "neurons/neuron.hpp"
+#include <functional>
+#include <iterator>
 
 class HebbianNeuralNetwork
 {
 public:
-    using InputLayer = std::vector< InputNeuron >;
-    using NeuronsLayer = std::vector< Neuron >;
-    using TargetLayer = std::vector< TargetNeuron >;
-    using DataSet = std::vector< double >;
-
+    HebbianNeuralNetwork() = delete;
     HebbianNeuralNetwork( size_t inputSize, size_t nNeurons );
+    ~HebbianNeuralNetwork();
     void addLearningDataSet( const std::vector< double >& dataSet,
                              const std::vector< double >& target );
     void learn();
-    bool test( const std::vector< double >& dataSet,
-               const std::vector< double >& target );
+    std::vector< double > test(
+        const std::vector< double >& dataSet );
 
 protected:
-    bool compare();
-    void setDataSet( const std::vector< double >& dataSet,
-                     const std::vector< double >& target );
+    double compute( size_t neuronIndex, double* input );
+    bool compare( double* input, double* target );
+    void adjust( double* input, double* target );
 
 private:
-    size_t inputSize;
-    size_t nNeurons;
-    InputLayer inputLayer;
-    NeuronsLayer neuronsLayer;
-    TargetLayer targetLayer;
-    std::vector< std::pair< DataSet, DataSet > > data;
+    const size_t inputSize;
+    const size_t nNeurons;
+    double** connections;
+    std::vector< std::pair< double*, double* > > data;
+    std::function< double( double ) > activation_func;
 };
 
 #endif /// HEBBIANNEURALNETWORK_HPP
