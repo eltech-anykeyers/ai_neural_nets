@@ -21,6 +21,19 @@ HebbianNeuralNetwork::HebbianNeuralNetwork( size_t inputSize, size_t nNeurons  )
         };
 }
 
+HebbianNeuralNetwork::HebbianNeuralNetwork(
+        size_t width, size_t height, double** connections )
+    : HebbianNeuralNetwork( height - 1, width )
+{
+    for( size_t i = 0; i < width; i++ )
+    {
+        std::copy( connections[ i ], connections[ i ] + height,
+                   this->connections[ i ] );
+        delete[] connections[ i ];
+    }
+    delete[] connections;
+}
+
 HebbianNeuralNetwork::~HebbianNeuralNetwork()
 {
     /// Free memory for connections.
@@ -149,6 +162,19 @@ void HebbianNeuralNetwork::clear()
             connections[ i ][ j ] = 0.0;
         }
     }
+}
+
+double** HebbianNeuralNetwork::getWeights() const
+{
+    double** weights = new double*[ this->nNeurons ];
+    for( size_t i = 0; i < this->nNeurons; i++ )
+    {
+        weights[ i ] = new double[ this->inputSize ];
+        std::copy( this->connections[ i ],
+                   this->connections[ i ] + inputSize,
+                   weights[ i ] );
+    }
+    return weights;
 }
 
 double HebbianNeuralNetwork::compute( size_t neuronIndex, double* input )
