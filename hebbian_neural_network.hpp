@@ -1,5 +1,5 @@
-#ifndef HEBBIANNEURALNETWORK_HPP
-#define HEBBIANNEURALNETWORK_HPP
+#ifndef HEBBIAN_NEURAL_NETWORK_HPP
+#define HEBBIAN_NEURAL_NETWORK_HPP
 
 #include <vector>
 #include <functional>
@@ -34,4 +34,4 @@ private:
     std::function< double( double ) > activation_func;
 };
 
-#endif /// HEBBIANNEURALNETWORK_HPP
+#endif /// HEBBIAN_NEURAL_NETWORK_HPP
