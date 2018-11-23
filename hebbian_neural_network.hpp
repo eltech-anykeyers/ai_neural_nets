@@ -10,14 +10,13 @@ class HebbianNeuralNetwork
 public:
     HebbianNeuralNetwork() = delete;
     HebbianNeuralNetwork( size_t inputSize, size_t nNeurons );
-    HebbianNeuralNetwork( size_t width, size_t height,
-                          double** connections );
+    HebbianNeuralNetwork( size_t weightsMatrixWidth, size_t seightsMatrixHeight,
+                          double** weightsMatrix );
     ~HebbianNeuralNetwork();
-    void addLearningDataSet( const std::vector< double >& dataSet,
-                             const std::vector< double >& target );
-    void learn();
-    std::vector< double > test(
-        const std::vector< double >& dataSet );
+    void addSampleToLearningDataSet( const std::vector< double >& input,
+                                     const std::vector< double >& target );
+    void adjustConnectionsWeights();
+    std::vector< double > recognizeSample( const std::vector< double >& input );
     void clear();
     double** getWeights() const;
 
@@ -29,7 +28,7 @@ protected:
 private:
     const size_t inputSize;
     const size_t nNeurons;
-    double** connections;
+    double** connectionsWeightsMatrix;
     std::vector< std::pair< double*, double* > > data;
     std::function< double( double ) > activation_func;
 };

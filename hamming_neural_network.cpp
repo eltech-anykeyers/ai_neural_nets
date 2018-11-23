@@ -4,7 +4,7 @@
 #include <QtMath>
 #include <QString>
 
-#include <neural_nets/hamming_neural_network.hpp>
+#include "hamming_neural_network.hpp"
 
 const double HammingNeuralNetwork::epsilon = 0.1;
 

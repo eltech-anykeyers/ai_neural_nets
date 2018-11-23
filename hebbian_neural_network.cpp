@@ -1,4 +1,4 @@
-#include <neural_nets/hebbian_neural_network.hpp>
+#include "hebbian_neural_network.hpp"
 
 #include <cmath>
 
@@ -7,11 +7,11 @@ HebbianNeuralNetwork::HebbianNeuralNetwork( size_t inputSize, size_t nNeurons  )
     , nNeurons( nNeurons )
 {
     /// Allocate memory for connections.
-    connections = new double*[ this->nNeurons ];
+    connectionsWeightsMatrix = new double*[ this->nNeurons ];
     for( size_t i = 0; i < this->nNeurons; i++ )
     {
-        connections[ i ] = new double[ this->inputSize ];
-        std::fill( connections[ i ], connections[ i ] + this->inputSize, 0.0 );
+        connectionsWeightsMatrix[ i ] = new double[ this->inputSize ];
+        std::fill( connectionsWeightsMatrix[ i ], connectionsWeightsMatrix[ i ] + this->inputSize, 0.0 );
     }
 
     activation_func =
@@ -22,16 +22,17 @@ HebbianNeuralNetwork::HebbianNeuralNetwork( size_t inputSize, size_t nNeurons  )
 }
 
 HebbianNeuralNetwork::HebbianNeuralNetwork(
-        size_t width, size_t height, double** connections )
-    : HebbianNeuralNetwork( height - 1, width )
+        size_t weightsMatrixWidth, size_t weightsMatrixHeight,
+        double** weightsMatrix )
+    : HebbianNeuralNetwork( weightsMatrixHeight - 1, weightsMatrixWidth )
 {
-    for( size_t i = 0; i < width; i++ )
+    for( size_t i = 0; i < weightsMatrixWidth; i++ )
     {
-        std::copy( connections[ i ], connections[ i ] + height,
-                   this->connections[ i ] );
-        delete[] connections[ i ];
+        std::copy( weightsMatrix[ i ], weightsMatrix[ i ] + weightsMatrixHeight,
+                   this->connectionsWeightsMatrix[ i ] );
+        delete[] weightsMatrix[ i ];
     }
-    delete[] connections;
+    delete[] weightsMatrix;
 }
 
 HebbianNeuralNetwork::~HebbianNeuralNetwork()
@@ -39,9 +40,9 @@ HebbianNeuralNetwork::~HebbianNeuralNetwork()
     /// Free memory for connections.
     for( size_t i = 0; i < this->nNeurons; i++ )
     {
-        delete[] connections[ i ];
+        delete[] connectionsWeightsMatrix[ i ];
     }
-    delete[] connections;
+    delete[] connectionsWeightsMatrix;
 
     /// Free memory for learning data.
     for( const auto& set : data )
@@ -51,16 +52,16 @@ HebbianNeuralNetwork::~HebbianNeuralNetwork()
     }
 }
 
-void HebbianNeuralNetwork::addLearningDataSet(
-    const std::vector< double >& dataSet, const std::vector< double >& target )
+void HebbianNeuralNetwork::addSampleToLearningDataSet(
+    const std::vector< double >& input, const std::vector< double >& target )
 {
     /// Check sizes.
-    if( dataSet.size() + 1 != this->inputSize ) return;
+    if( input.size() + 1 != this->inputSize ) return;
     if( target.size() != this->nNeurons ) return;
 
     /// Create input array.
     double* inputArray = new double[ this->inputSize ];
-    std::copy( dataSet.begin(), dataSet.end(), inputArray + 1 );
+    std::copy( input.begin(), input.end(), inputArray + 1 );
     inputArray[ 0 ] = 1.0;
 
     /// Create target array.
@@ -101,7 +102,7 @@ void HebbianNeuralNetwork::addLearningDataSet(
     }
 }
 
-void HebbianNeuralNetwork::learn()
+void HebbianNeuralNetwork::adjustConnectionsWeights()
 {
     bool stop = false;
     do
@@ -127,18 +128,18 @@ void HebbianNeuralNetwork::learn()
     while( !stop );
 }
 
-std::vector< double > HebbianNeuralNetwork::test(
-    const std::vector< double >& dataSet )
+std::vector< double > HebbianNeuralNetwork::recognizeSample(
+    const std::vector< double >& input )
 {
     /// Check sizes.
-    if( dataSet.size() + 1 != this->inputSize )
+    if( input.size() + 1 != this->inputSize )
     {
         return std::vector< double >();
     }
 
     /// Create input array.
     double* inputArray = new double[ this->inputSize ];
-    std::copy( dataSet.begin(), dataSet.end(), inputArray + 1 );
+    std::copy( input.begin(), input.end(), inputArray + 1 );
     inputArray[ 0 ] = 1.0;
 
     std::vector< double > result;
@@ -159,7 +160,7 @@ void HebbianNeuralNetwork::clear()
     {
         for( size_t j = 0; j < this->inputSize; j++ )
         {
-            connections[ i ][ j ] = 0.0;
+            connectionsWeightsMatrix[ i ][ j ] = 0.0;
         }
     }
 }
@@ -170,8 +171,8 @@ double** HebbianNeuralNetwork::getWeights() const
     for( size_t i = 0; i < this->nNeurons; i++ )
     {
         weights[ i ] = new double[ this->inputSize ];
-        std::copy( this->connections[ i ],
-                   this->connections[ i ] + inputSize,
+        std::copy( this->connectionsWeightsMatrix[ i ],
+                   this->connectionsWeightsMatrix[ i ] + inputSize,
                    weights[ i ] );
     }
     return weights;
@@ -182,7 +183,7 @@ double HebbianNeuralNetwork::compute( size_t neuronIndex, double* input )
     double result = 0.0;
     for( size_t i = 0; i < inputSize; i++ )
     {
-        result += connections[ neuronIndex ][ i ] * input[ i ];
+        result += connectionsWeightsMatrix[ neuronIndex ][ i ] * input[ i ];
     }
     return activation_func( result );
 }
@@ -211,7 +212,7 @@ void HebbianNeuralNetwork::adjust( double* input, double* target )
             for( size_t j = 0; j < inputSize; j++ )
             {
                 double dw = input[ j ] > 0.0 ? -1.0 : 0.0;
-                connections[ i ][ j ] += dw;
+                connectionsWeightsMatrix[ i ][ j ] += dw;
             }
         }
         else if( fabs( output ) < 1e-7 &&
@@ -221,7 +222,7 @@ void HebbianNeuralNetwork::adjust( double* input, double* target )
             for( size_t j = 0; j < inputSize; j++ )
             {
                 double dw = input[ j ] > 0.0 ? 1.0 : 0.0;
-                connections[ i ][ j ] += dw;
+                connectionsWeightsMatrix[ i ][ j ] += dw;
             }
         }
     }
