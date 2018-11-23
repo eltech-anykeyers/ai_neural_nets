@@ -20,11 +20,13 @@ void HammingNeuralNetwork::append(const MarkedDrawer& image)
     const auto mark = image.getMark();
 
     QVector<double>* data = new QVector<double>();
+    /*
     for (const auto& pixel : image.getPixelData())
     {
         qDebug() << QString::fromWCharArray(L"Pixel value = ") << QString::number(pixel.value());
         data->append(pixel.value() > 0 ? -1.0 : 1.0);
     }
+    */
 
     if (data->size() != this->imageLinearSize)
     {
@@ -44,11 +46,13 @@ void HammingNeuralNetwork::append(const MarkedDrawer& image)
 QString HammingNeuralNetwork::recognize(const MarkedDrawer& image)
 {
     QVector<double>* data = new QVector<double>();
+    /*
     for (const auto& pixel : image.getPixelData())
     {
         qDebug() << QString::fromWCharArray(L"Pixel value = ") << QString::number(pixel.value());
         data->append(pixel.value() > 0 ? -1.0 : 1.0);
     }
+    */
 
     QVector<double> neuronus;
 
