@@ -5,20 +5,24 @@
 #include <functional>
 #include <iterator>
 
-class HebbianNeuralNetwork
+#include "i_neural_network.hpp"
+
+class HebbianNeuralNetwork : public INeuralNetwork
 {
 public:
     HebbianNeuralNetwork() = delete;
     HebbianNeuralNetwork( size_t inputSize, size_t nNeurons );
     HebbianNeuralNetwork( size_t weightsMatrixWidth, size_t seightsMatrixHeight,
                           double** weightsMatrix );
-    ~HebbianNeuralNetwork();
-    void addSampleToLearningDataSet( const std::vector< double >& input,
-                                     const std::vector< double >& target );
-    void adjustConnectionsWeights();
-    std::vector< double > recognizeSample( const std::vector< double >& input );
-    void clear();
-    double** getWeights() const;
+    virtual ~HebbianNeuralNetwork() override;
+    virtual void addSampleToLearningDataSet(
+            const std::vector< double >& input,
+            const std::vector< double >& target ) final;
+    virtual void adjustConnectionsWeights() final;
+    virtual std::vector< double > recognizeSample(
+            const std::vector< double >& input ) final;
+    virtual void clear() final;
+    virtual double** getWeights() const final;
 
 protected:
     double compute( size_t neuronIndex, double* input );

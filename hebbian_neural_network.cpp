@@ -3,7 +3,8 @@
 #include <cmath>
 
 HebbianNeuralNetwork::HebbianNeuralNetwork( size_t inputSize, size_t nNeurons  )
-    : inputSize( inputSize + 1 )
+    : INeuralNetwork()
+    , inputSize( inputSize + 1 )
     , nNeurons( nNeurons )
 {
     /// Allocate memory for connections.
