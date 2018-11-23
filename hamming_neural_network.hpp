@@ -12,8 +12,11 @@ class HammingNeuralNetwork
 public:
     HammingNeuralNetwork();
 
-    void append(const MarkedDrawer& image);
-    QString recognize(const MarkedDrawer& image);
+    void addSampleToLearningDataSet(
+            const QVector< double >& input,
+            const QVector< double >& target );
+    void adjustConnectionsWeights();
+    QVector< double > recognizeSample( const QVector< double >& input );
 
     qint32 getImageLinearSize() const;
     void setLinearSize(const qint32 imageLinearSize);
@@ -31,9 +34,9 @@ private:
 
     double randomShittyParameter; // image_linear_size / 2.0;
 
-    QVector<QPair<QString, QVector<double>*>*>* samplesMatrix;
-    QVector<QVector<double>*>* weightsMatrix;
-    QVector<QVector<double>*>* feedbackMatrix;
+    QVector<QPair<QVector<double>, QVector<double>>> samplesMatrix;
+    QVector<QVector<double>> weightsMatrix;
+    QVector<QVector<double>> feedbackMatrix;
 
     void updateWeightsMatrix();
     void updateFeedbackMatrix();
