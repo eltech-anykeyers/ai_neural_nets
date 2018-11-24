@@ -11,9 +11,9 @@ class HebbianNeuralNetwork : public INeuralNetwork
 {
 public:
     HebbianNeuralNetwork() = delete;
-    HebbianNeuralNetwork( size_t inputSize, size_t nNeurons );
-    HebbianNeuralNetwork( size_t weightsMatrixWidth, size_t seightsMatrixHeight,
-                          double** weightsMatrix );
+    explicit HebbianNeuralNetwork( size_t inputSize, size_t nNeurons );
+    explicit HebbianNeuralNetwork( size_t weightsMatrixWidth, size_t seightsMatrixHeight,
+                                   double** weightsMatrix );
     virtual ~HebbianNeuralNetwork() override;
     virtual void addSampleToLearningDataSet(
             const std::vector< double >& input,
@@ -22,7 +22,7 @@ public:
     virtual std::vector< double > recognizeSample(
             const std::vector< double >& input ) final;
     virtual void clear() final;
-    virtual double** getWeights() const final;
+    virtual std::vector< Matrix > getWeightsMatrices() const final;
 
 protected:
     double compute( size_t neuronIndex, double* input );

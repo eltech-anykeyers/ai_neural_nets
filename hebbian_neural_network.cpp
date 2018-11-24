@@ -9,7 +9,7 @@ HebbianNeuralNetwork::HebbianNeuralNetwork( size_t inputSize, size_t nNeurons  )
 {
     /// Allocate memory for connections.
     connectionsWeightsMatrix = new double*[ this->nNeurons ];
-    for( size_t i = 0; i < this->nNeurons; i++ )
+    for( size_t i = 0; i < this->nNeurons; ++i )
     {
         connectionsWeightsMatrix[ i ] = new double[ this->inputSize ];
         std::fill( connectionsWeightsMatrix[ i ], connectionsWeightsMatrix[ i ] + this->inputSize, 0.0 );
@@ -27,7 +27,7 @@ HebbianNeuralNetwork::HebbianNeuralNetwork(
         double** weightsMatrix )
     : HebbianNeuralNetwork( weightsMatrixHeight - 1, weightsMatrixWidth )
 {
-    for( size_t i = 0; i < weightsMatrixWidth; i++ )
+    for( size_t i = 0; i < weightsMatrixWidth; ++i )
     {
         std::copy( weightsMatrix[ i ], weightsMatrix[ i ] + weightsMatrixHeight,
                    this->connectionsWeightsMatrix[ i ] );
@@ -39,7 +39,7 @@ HebbianNeuralNetwork::HebbianNeuralNetwork(
 HebbianNeuralNetwork::~HebbianNeuralNetwork()
 {
     /// Free memory for connections.
-    for( size_t i = 0; i < this->nNeurons; i++ )
+    for( size_t i = 0; i < this->nNeurons; ++i )
     {
         delete[] connectionsWeightsMatrix[ i ];
     }
@@ -75,7 +75,7 @@ void HebbianNeuralNetwork::addSampleToLearningDataSet(
     {
         /// Check if input is duplicate.
         duplicate = true;
-        for( size_t i = 0; i < this->inputSize; i++ )
+        for( size_t i = 0; i < this->inputSize; ++i )
         {
             duplicate =
                 duplicate &&
@@ -86,7 +86,7 @@ void HebbianNeuralNetwork::addSampleToLearningDataSet(
 
         /// Check if target is duplicate.
         duplicate = true;
-        for( size_t i = 0; i < this->nNeurons; i++ )
+        for( size_t i = 0; i < this->nNeurons; ++i )
         {
             duplicate =
                 duplicate &&
@@ -144,7 +144,7 @@ std::vector< double > HebbianNeuralNetwork::recognizeSample(
     inputArray[ 0 ] = 1.0;
 
     std::vector< double > result;
-    for( size_t i = 0; i < nNeurons; i++ )
+    for( size_t i = 0; i < nNeurons; ++i )
     {
         result.push_back( this->compute( i, inputArray ) );
     }
@@ -157,32 +157,32 @@ std::vector< double > HebbianNeuralNetwork::recognizeSample(
 void HebbianNeuralNetwork::clear()
 {
     data.clear();
-    for( size_t i = 0; i < this->nNeurons; i++ )
+    for( size_t i = 0; i < this->nNeurons; ++i )
     {
-        for( size_t j = 0; j < this->inputSize; j++ )
+        for( size_t j = 0; j < this->inputSize; ++j )
         {
             connectionsWeightsMatrix[ i ][ j ] = 0.0;
         }
     }
 }
 
-double** HebbianNeuralNetwork::getWeights() const
+std::vector< INeuralNetwork::Matrix > HebbianNeuralNetwork::getWeightsMatrices() const
 {
     double** weights = new double*[ this->nNeurons ];
-    for( size_t i = 0; i < this->nNeurons; i++ )
+    for( size_t i = 0; i < this->nNeurons; ++i )
     {
         weights[ i ] = new double[ this->inputSize ];
         std::copy( this->connectionsWeightsMatrix[ i ],
                    this->connectionsWeightsMatrix[ i ] + inputSize,
                    weights[ i ] );
     }
-    return weights;
+    return { { weights, this->nNeurons, this->inputSize } };
 }
 
 double HebbianNeuralNetwork::compute( size_t neuronIndex, double* input )
 {
     double result = 0.0;
-    for( size_t i = 0; i < inputSize; i++ )
+    for( size_t i = 0; i < inputSize; ++i )
     {
         result += connectionsWeightsMatrix[ neuronIndex ][ i ] * input[ i ];
     }
@@ -192,7 +192,7 @@ double HebbianNeuralNetwork::compute( size_t neuronIndex, double* input )
 bool HebbianNeuralNetwork::compare( double* input, double* target )
 {
     bool equal = true;
-    for( size_t i = 0; i < nNeurons; i++ )
+    for( size_t i = 0; i < nNeurons; ++i )
     {
         equal = equal &&
                 ( fabs( this->compute( i, input ) - target[ i ] ) < 1e-7 );
@@ -203,14 +203,14 @@ bool HebbianNeuralNetwork::compare( double* input, double* target )
 
 void HebbianNeuralNetwork::adjust( double* input, double* target )
 {
-    for( size_t i = 0; i < nNeurons; i++ )
+    for( size_t i = 0; i < nNeurons; ++i )
     {
         double output = this->compute( i, input );
         if( fabs( output - 1.0 ) < 1e-7 &&
             fabs( target[ i ] ) < 1e-7 )
         {
             /// output > target => '-'
-            for( size_t j = 0; j < inputSize; j++ )
+            for( size_t j = 0; j < inputSize; ++j )
             {
                 double dw = input[ j ] > 0.0 ? -1.0 : 0.0;
                 connectionsWeightsMatrix[ i ][ j ] += dw;
@@ -220,7 +220,7 @@ void HebbianNeuralNetwork::adjust( double* input, double* target )
                  fabs( target[ i ]  - 1.0) < 1e-7 )
         {
             /// output < target => '+'
-            for( size_t j = 0; j < inputSize; j++ )
+            for( size_t j = 0; j < inputSize; ++j )
             {
                 double dw = input[ j ] > 0.0 ? 1.0 : 0.0;
                 connectionsWeightsMatrix[ i ][ j ] += dw;
