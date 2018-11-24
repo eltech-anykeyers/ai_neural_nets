@@ -1,8 +1,4 @@
-#include <exception>
-
-#include <QDebug>
-#include <QtMath>
-#include <QString>
+#include <cmath>
 
 #include "hamming_neural_network.hpp"
 
@@ -12,15 +8,15 @@ HammingNeuralNetwork::HammingNeuralNetwork()
 {}
 
 void HammingNeuralNetwork::addSampleToLearningDataSet(
-        const QVector< double >& input,
-        const QVector< double >& target )
+        const std::vector< double >& input,
+        const std::vector< double >& target )
 {
     if( input.size() != this->imageLinearSize )
     {
-        throw std::logic_error( "Image linear size doesn't match one set." );
+        return;
     }
 
-    samplesMatrix.append(qMakePair( target, input ) );
+    samplesMatrix.push_back( std::make_pair( target, input ) );
 }
 
 void HammingNeuralNetwork::adjustConnectionsWeights()
@@ -29,15 +25,15 @@ void HammingNeuralNetwork::adjustConnectionsWeights()
     this->updateFeedbackMatrix();
 }
 
-QVector< double > HammingNeuralNetwork::recognizeSample( const QVector< double >& input )
+std::vector< double > HammingNeuralNetwork::recognizeSample( const std::vector<  double >& input )
 {
-    QVector<double> neuronus;
+    std::vector< double > neuronus;
 
-    for ( qint32 i = 0; i < samplesMatrix.size(); ++i )
+    for ( size_t i = 0; i < samplesMatrix.size(); ++i )
     {
         double sum = 0.0;
 
-        for ( qint32 j = 0; j < imageLinearSize; ++j )
+        for ( size_t j = 0; j < imageLinearSize; ++j )
         {
             sum += weightsMatrix[ i ][ j ] * input[ j ];
         }
@@ -45,24 +41,24 @@ QVector< double > HammingNeuralNetwork::recognizeSample( const QVector< double >
         neuronus.push_back( sum + randomShittyParameter );
     }
 
-    QVector<double> output(neuronus);
+    std::vector< double > output(neuronus);
 
-    static const qint32 MAX_ITERATIONS = 32;
-    for( qint32 iteration = 0; iteration < MAX_ITERATIONS; ++iteration )
+    static const int32_t MAX_ITERATIONS = 32;
+    for( int32_t iteration = 0; iteration < MAX_ITERATIONS; ++iteration )
     {
         auto prev_output(output);
 
-        for( qint32 i = 0; i < neuronus.size(); ++i )
+        for( size_t i = 0; i < neuronus.size(); ++i )
         {
             double sum = 0.0;
 
-            for (qint32 j = 0; j < neuronus.size(); ++j)
+            for( size_t j = 0; j < neuronus.size(); ++j )
             {
                 if (i == j) continue;
                 sum += feedbackMatrix[ i ][ j ] * output[ j ];
             }
 
-            neuronus[i] = prev_output[i] + sum;
+            neuronus[ i ] = prev_output[ i ] + sum;
         }
 
         output = neuronus;
@@ -71,10 +67,10 @@ QVector< double > HammingNeuralNetwork::recognizeSample( const QVector< double >
             value = this->activation(value);
         }
 
-        QVector<double> temp;
-        for( qint32 i = 0; i < output.size(); ++i )
+        std::vector< double > temp;
+        for( size_t i = 0; i < output.size(); ++i )
         {
-            temp.push_back(output[i] - prev_output[i]);
+            temp.push_back( output[ i ] - prev_output[ i ] );
         }
 
         if( this->norm(temp) < this->epsilon )
@@ -86,26 +82,15 @@ QVector< double > HammingNeuralNetwork::recognizeSample( const QVector< double >
     return output;
 }
 
-qint32 HammingNeuralNetwork::getImageLinearSize() const
+size_t HammingNeuralNetwork::getImageLinearSize() const
 {
     return this->imageLinearSize;
 }
 
-void HammingNeuralNetwork::setLinearSize( const qint32 imageLinearSize )
+void HammingNeuralNetwork::setLinearSize( const size_t imageLinearSize )
 {
     this->imageLinearSize = imageLinearSize;
     this->randomShittyParameter = this->imageLinearSize / 2.0;
-}
-
-QSize HammingNeuralNetwork::getImageSize() const
-{
-    return this->imageSize;
-}
-
-void HammingNeuralNetwork::setImageSize(const QSize& imageSize)
-{
-    this->imageSize = imageSize;
-    this->setLinearSize( imageSize.width() * imageSize.height() );
 }
 
 void HammingNeuralNetwork::updateWeightsMatrix()
@@ -114,14 +99,14 @@ void HammingNeuralNetwork::updateWeightsMatrix()
 
     for( const auto& sample : samplesMatrix )
     {
-        QVector<double> new_weights;
+        std::vector< double > new_weights;
 
         for (const auto& sample_data_value : sample.second)
         {
-            new_weights.append( 0.5 * sample_data_value );
+            new_weights.push_back( 0.5 * sample_data_value );
         }
 
-        weightsMatrix.append( new_weights );
+        weightsMatrix.push_back( new_weights );
     }
 }
 
@@ -129,12 +114,12 @@ void HammingNeuralNetwork::updateFeedbackMatrix()
 {
     feedbackMatrix.clear();
 
-    for( qint32 i = 0; i < samplesMatrix.size(); ++i )
+    for( size_t i = 0; i < samplesMatrix.size(); ++i )
     {
-        feedbackMatrix.append( QVector< double >() );
-        for( qint32 j = 0; j < samplesMatrix.size(); ++j )
+        feedbackMatrix.push_back( std::vector< double >() );
+        for( size_t j = 0; j < samplesMatrix.size(); ++j )
         {
-            feedbackMatrix[ i ].append(
+            feedbackMatrix[ i ].push_back(
                 i == j ? 1.0 : -1.0 / samplesMatrix.size() );
         }
     }
@@ -150,14 +135,11 @@ double HammingNeuralNetwork::activation(double arg) const
         return this->randomShittyParameter;
 }
 
-double HammingNeuralNetwork::norm(const QVector<double>& vector) const
+double HammingNeuralNetwork::norm(const std::vector< double >& vector) const
 {
-    double result_squared( 0.0 );
-
-    for(const auto& value : vector)
-    {
-        result_squared += qPow( value, 2.0 );
-    }
-
-    return qSqrt(result_squared);
+    return std::sqrt(
+        std::accumulate( vector.begin(), vector.end(), 0.0,
+                         []( double acc, double val ){
+                             return acc + std::pow( val, 2.0 );
+                         } ) );
 }
