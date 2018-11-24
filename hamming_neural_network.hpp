@@ -5,26 +5,30 @@
 #include <vector>
 #include <numeric>
 
-class HammingNeuralNetwork
+#include "i_neural_network.hpp"
+
+class HammingNeuralNetwork : public INeuralNetwork
 {
 public:
-    HammingNeuralNetwork();
+    HammingNeuralNetwork() = delete;
+    explicit HammingNeuralNetwork( const size_t inputSize, const size_t nNeurons );
 
-    void addSampleToLearningDataSet(
+    virtual void addSampleToLearningDataSet(
             const std::vector< double >& input,
-            const std::vector< double >& target );
-    void adjustConnectionsWeights();
-    std::vector< double > recognizeSample( const std::vector< double >& input );
+            const std::vector< double >& target ) final;
+    virtual void adjustConnectionsWeights() final;
+    virtual std::vector< double > recognizeSample(
+            const std::vector< double >& input ) final;
+    virtual void clear() final;
+    virtual std::vector< Matrix > getWeightsMatrices() const final;
 
     size_t getImageLinearSize() const;
-    void setLinearSize( const size_t imageLinearSize );
-
-    void clear();
 
 private:
     static const double epsilon;
 
-    size_t imageLinearSize; // image_size.width * image_size.height;
+    const size_t nNeurons;
+    const size_t inputSize; // image_size.width * image_size.height;
 
     double randomShittyParameter; // image_linear_size / 2.0;
 
@@ -35,9 +39,9 @@ private:
     void updateWeightsMatrix();
     void updateFeedbackMatrix();
 
-    inline double activation(double arg) const;
+    inline double activation( double arg ) const;
 
-    inline double norm(const std::vector< double>& vector) const;
+    inline double norm( const std::vector< double>& vector ) const;
 };
 
 #endif // HAMMING_NEURAL_NETWORK_HPP
