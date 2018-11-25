@@ -9,16 +9,31 @@ HammingNeuralNetwork::HammingNeuralNetwork(
     : INeuralNetwork()
     , nNeurons( nNeurons )
     , inputSize( imageLinearSize )
-{}
+{
+    weightsMatrix = std::vector< std::vector< double > >();
+    feedbackMatrix = std::vector< std::vector< double > >();
+    normalizeMatricesSizes();
+}
+
+HammingNeuralNetwork::HammingNeuralNetwork(
+        size_t weightsMatrixWidth, size_t weightsMatrixHeight,
+        const std::vector< std::vector< double > >& weightsMatrix,
+        const std::vector< std::vector< double > >& feedbackMatrix )
+    : INeuralNetwork()
+    , nNeurons( weightsMatrixWidth )
+    , inputSize( weightsMatrixHeight )
+{
+    this->weightsMatrix = weightsMatrix;
+    this->feedbackMatrix = feedbackMatrix;
+    normalizeMatricesSizes();
+}
 
 void HammingNeuralNetwork::addSampleToLearningDataSet(
         const std::vector< double >& input,
         const std::vector< double >& target )
 {
-    if( input.size() != this->inputSize )
-    {
-        return;
-    }
+    if( input.size() != this->inputSize ) return;
+    if( target.size() != this->nNeurons ) return;
 
     samplesMatrix.push_back( std::make_pair( target, input ) );
 }
@@ -33,7 +48,7 @@ std::vector< double > HammingNeuralNetwork::recognizeSample( const std::vector< 
 {
     std::vector< double > neuronus;
 
-    for( size_t i = 0; i < samplesMatrix.size(); ++i )
+    for( size_t i = 0; i < nNeurons; ++i )
     {
         double sum = 0.0;
 
@@ -93,36 +108,24 @@ size_t HammingNeuralNetwork::getImageLinearSize() const
 
 void HammingNeuralNetwork::updateWeightsMatrix()
 {
-    weightsMatrix.clear();
-
-    for( const auto& sample : samplesMatrix )
+    for( size_t i = 0; i < nNeurons; ++i )
     {
-        std::vector< double > new_weights;
-
-        for( const auto& sample_data_value : sample.second )
+        for( size_t j = 0; j < inputSize; ++j )
         {
-            new_weights.push_back( 0.5 * sample_data_value );
+            weightsMatrix[ i ][ j ] = 0.5 * samplesMatrix[ i ].second[ j ];
         }
-
-        weightsMatrix.push_back( new_weights );
     }
 }
 
 void HammingNeuralNetwork::updateFeedbackMatrix()
 {
-    feedbackMatrix.clear();
-
-    for( size_t i = 0; i < samplesMatrix.size(); ++i )
+    for( size_t i = 0; i < nNeurons; ++i )
     {
-        std::vector< double > new_feedbacks;
-
-        for( size_t j = 0; j < samplesMatrix.size(); ++j )
+        for( size_t j = 0; j < nNeurons; ++j )
         {
-            new_feedbacks.push_back(
-                i == j ? 1.0 : -1.0 / samplesMatrix.size() );
+            feedbackMatrix[ i ][ j ] =
+                i == j ? 1.0 : -1.0 / nNeurons;
         }
-
-        feedbackMatrix.push_back( new_feedbacks );
     }
 }
 
@@ -179,4 +182,19 @@ std::vector< INeuralNetwork::Matrix > HammingNeuralNetwork::getWeightsMatrices()
 
     return { { weights, this->nNeurons, this->inputSize },
              { feedbacks, this->nNeurons, this->inputSize } };
+}
+
+void HammingNeuralNetwork::normalizeMatricesSizes()
+{
+    weightsMatrix.resize( nNeurons );
+    for( size_t i = 0; i < nNeurons; ++i )
+    {
+        weightsMatrix[ i ].resize( inputSize );
+    }
+
+    feedbackMatrix.resize( nNeurons );
+    for( size_t i = 0; i < nNeurons; ++i )
+    {
+        feedbackMatrix[ i ].resize( nNeurons );
+    }
 }

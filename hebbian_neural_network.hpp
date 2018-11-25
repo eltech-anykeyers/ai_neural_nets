@@ -12,7 +12,7 @@ class HebbianNeuralNetwork : public INeuralNetwork
 public:
     HebbianNeuralNetwork() = delete;
     explicit HebbianNeuralNetwork( size_t inputSize, size_t nNeurons );
-    explicit HebbianNeuralNetwork( size_t weightsMatrixWidth, size_t seightsMatrixHeight,
+    explicit HebbianNeuralNetwork( size_t weightsMatrixWidth, size_t weightsMatrixHeight,
                                    double** weightsMatrix );
     virtual ~HebbianNeuralNetwork() override;
     virtual void addSampleToLearningDataSet(

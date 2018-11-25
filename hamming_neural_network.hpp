@@ -12,6 +12,9 @@ class HammingNeuralNetwork : public INeuralNetwork
 public:
     HammingNeuralNetwork() = delete;
     explicit HammingNeuralNetwork( const size_t inputSize, const size_t nNeurons );
+    explicit HammingNeuralNetwork( size_t weightsMatrixWidth, size_t weightsMatrixHeight,
+                                   const std::vector< std::vector< double > >& weightsMatrix,
+                                   const std::vector< std::vector< double > >& feedbackMatrix );
 
     virtual void addSampleToLearningDataSet(
             const std::vector< double >& input,
@@ -23,6 +26,9 @@ public:
     virtual std::vector< Matrix > getWeightsMatrices() const final;
 
     size_t getImageLinearSize() const;
+
+protected:
+    void normalizeMatricesSizes();
 
 private:
     static const double epsilon;
