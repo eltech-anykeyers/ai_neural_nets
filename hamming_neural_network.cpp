@@ -108,7 +108,7 @@ size_t HammingNeuralNetwork::getImageLinearSize() const
 
 void HammingNeuralNetwork::updateWeightsMatrix()
 {
-    for( size_t i = 0; i < nNeurons; ++i )
+    for( size_t i = 0; i < samplesMatrix.size(); ++i )
     {
         for( size_t j = 0; j < inputSize; ++j )
         {
@@ -119,9 +119,9 @@ void HammingNeuralNetwork::updateWeightsMatrix()
 
 void HammingNeuralNetwork::updateFeedbackMatrix()
 {
-    for( size_t i = 0; i < nNeurons; ++i )
+    for( size_t i = 0; i < samplesMatrix.size(); ++i )
     {
-        for( size_t j = 0; j < nNeurons; ++j )
+        for( size_t j = 0; j < samplesMatrix.size(); ++j )
         {
             feedbackMatrix[ i ][ j ] =
                 i == j ? 1.0 : -1.0 / nNeurons;
@@ -189,12 +189,12 @@ void HammingNeuralNetwork::normalizeMatricesSizes()
     weightsMatrix.resize( nNeurons );
     for( size_t i = 0; i < nNeurons; ++i )
     {
-        weightsMatrix[ i ].resize( inputSize );
+        weightsMatrix[ i ].resize( inputSize, 0.0 );
     }
 
     feedbackMatrix.resize( nNeurons );
     for( size_t i = 0; i < nNeurons; ++i )
     {
-        feedbackMatrix[ i ].resize( nNeurons );
+        feedbackMatrix[ i ].resize( nNeurons, 0.0 );
     }
 }
