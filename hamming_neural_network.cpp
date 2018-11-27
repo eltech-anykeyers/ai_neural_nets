@@ -1,4 +1,5 @@
 #include <cmath>
+#include <algorithm>
 
 #include "hamming_neural_network.hpp"
 
@@ -48,7 +49,7 @@ std::vector< double > HammingNeuralNetwork::recognizeSample( const std::vector< 
 {
     std::vector< double > neuronus;
 
-    for( size_t i = 0; i < nNeurons; ++i )
+    for( size_t i = 0; i < neuronus.size(); ++i )
     {
         double sum = 0.0;
 
@@ -62,10 +63,10 @@ std::vector< double > HammingNeuralNetwork::recognizeSample( const std::vector< 
 
     std::vector< double > output( neuronus );
 
-    static const int32_t MAX_ITERATIONS = 32;
+    static const int32_t MAX_ITERATIONS = 320;
     for( int32_t iteration = 0; iteration < MAX_ITERATIONS; ++iteration )
     {
-        auto prev_output(output);
+        auto prev_output( output );
 
         for( size_t i = 0; i < neuronus.size(); ++i )
         {
@@ -98,7 +99,24 @@ std::vector< double > HammingNeuralNetwork::recognizeSample( const std::vector< 
         }
     }
 
-    return output;
+    std::vector< size_t > indices;
+    for( size_t i = 0; i < output.size(); ++i )
+    {
+        if( output[ i ] > 0.0 )
+        {
+            indices.push_back( i );
+        }
+    }
+
+    if( indices.size() == 0 )
+    {
+        return std::vector< double >( nNeurons, 0.0 );
+    }
+    else
+    {
+        auto maxElem = std::max_element( indices.begin(), indices.end() );
+        return samplesMatrix[ *maxElem ].first;
+    }
 }
 
 size_t HammingNeuralNetwork::getImageLinearSize() const
