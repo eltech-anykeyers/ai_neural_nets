@@ -47,9 +47,11 @@ void HammingNeuralNetwork::adjustConnectionsWeights()
 
 std::vector< double > HammingNeuralNetwork::recognizeSample( const std::vector< double >& input )
 {
+    this->randomShittyParameter = this->inputSize / 2.0;
+
     std::vector< double > neuronus;
 
-    for( size_t i = 0; i < neuronus.size(); ++i )
+    for( size_t i = 0; i < samplesMatrix.size(); ++i )
     {
         double sum = 0.0;
 
@@ -63,7 +65,7 @@ std::vector< double > HammingNeuralNetwork::recognizeSample( const std::vector< 
 
     std::vector< double > output( neuronus );
 
-    static const int32_t MAX_ITERATIONS = 320;
+    static const int32_t MAX_ITERATIONS = 32;
     for( int32_t iteration = 0; iteration < MAX_ITERATIONS; ++iteration )
     {
         auto prev_output( output );
@@ -114,8 +116,23 @@ std::vector< double > HammingNeuralNetwork::recognizeSample( const std::vector< 
     }
     else
     {
-        auto maxElem = std::max_element( indices.begin(), indices.end() );
-        return samplesMatrix[ *maxElem ].first;
+        std::vector< double > result(samplesMatrix.size());
+        std::fill_n(result.begin(), result.size(), 0.0);
+
+        for( const auto& index : indices )
+        {
+            const auto& v = samplesMatrix[ index ].first;
+
+            for( std::size_t idx = 0; idx < v.size(); ++idx )
+            {
+                if( v[ idx ] > 0.0 )
+                {
+                    result[ idx ] = v[ idx ];
+                }
+            }
+        }
+
+        return result;
     }
 }
 
